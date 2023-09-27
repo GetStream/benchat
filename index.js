@@ -6,7 +6,7 @@ const { argv } = require('yargs/yargs')(process.argv.slice(2))
   .describe('connectionDelay', 'ms to wait before launching a user connection')
   .default('userConnectionsMax', 99)
   .describe('userConnectionsMax', 'how many users to connect the channel')
-  .default('userLifetime', 3000)
+  .default('userLifetime', 3500)
   .describe('userConnectionsMax', 'how long (ms) to keep the user connected before leaving')
   .default('coolDown', 5000)
   .describe('userConnectionsMax', 'how long (ms) to wait before one full run')
@@ -40,8 +40,14 @@ async function clientLoop(i) {
 
   await channel.watch();
   const markReadPromise = null;
+  let shouldMarkRead = true;
   const messageNewHandler = channel.on('message.new', () => {
-    channel.markRead();
+    if (shouldMarkRead) {
+      shouldMarkRead = false;
+      setTimeout(() => { shouldMarkRead = true; }, 666);
+      return channel.markRead();
+    }
+    return null;
   });
   await sleep(userLifetime);
   channel.off(messageNewHandler);
