@@ -1,5 +1,5 @@
 # benchat
-Simple node script to run basic performance test on a chat channel
+A bench tool to stress test a chat channel
 
 ## Setup
 
