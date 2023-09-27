@@ -12,3 +12,9 @@ yarn
 
 ./bench.sh --apiKey=... --apiSecret=... --channelType=... --channelID=...
 ```
+
+## Usage
+
+```bash
+./bench.sh -h
+```
