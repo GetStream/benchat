@@ -6,7 +6,7 @@ const { argv } = require('yargs/yargs')(process.argv.slice(2))
   .describe('connectionDelay', 'ms to wait before launching a user connection')
   .default('userConnectionsMax', 99)
   .describe('userConnectionsMax', 'how many users to connect the channel')
-  .default('userLifetime', 3500)
+  .default('userLifetime', 6000)
   .describe('userConnectionsMax', 'how long (ms) to keep the user connected before leaving')
   .default('coolDown', 5000)
   .describe('userConnectionsMax', 'how long (ms) to wait before one full run')
@@ -69,16 +69,23 @@ async function clientSetup(i) {
   return user.id;
 }
 
+function chunk(arr, size) {
+  return arr.reduce((acc, e, i) => (i % size ? acc[acc.length - 1].push(e) : acc.push([e]), acc), []);
+}
+
 (async () => {
   console.log('Adding users to channel as members');
   const channel = serverSideClient.channel(channelType, channelID);
-  const userPromises = [];
-  for (let i = 0; i < userConnectionsMax; i += 1) {
-    await sleep(connectionDelay / 10);
-    userPromises.push(clientSetup(i));
+
+  for (const ids of chunk(Array.from(Array(userConnectionsMax).keys()), 100)) {
+    const userPromises = [];
+    for (const id of ids) {
+        await sleep(connectionDelay / 10);
+        userPromises.push(clientSetup(id));
+    }
+    const userIDs = await Promise.all(userPromises);
+    await channel.addMembers(userIDs);
   }
-  const userIDs = await Promise.all(userPromises);
-  await channel.addMembers(userIDs);
 
   let msgNum = 1;
   setInterval(async () => {
