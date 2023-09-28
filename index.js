@@ -7,12 +7,12 @@ const { argv } = require('yargs/yargs')(process.argv.slice(2))
   .default('userConnectionsMax', 99)
   .describe('userConnectionsMax', 'how many users to connect the channel')
   .default('userLifetime', 3500)
-  .describe('userConnectionsMax', 'how long (ms) to keep the user connected before leaving')
+  .describe('userLifetime', 'how long (ms) to keep the user connected before leaving')
   .default('coolDown', 5000)
-  .describe('userConnectionsMax', 'how long (ms) to wait before one full run')
+  .describe('coolDown', 'how long (ms) to wait before one full run')
   .default('userIDPrefix', 'tommaso-')
   .default('messagesPerMinute', 20)
-  .describe('userConnectionsMax', 'how many messages to send per minute')
+  .describe('messagesPerMinute', 'how many messages to send per minute')
   .demandOption(['apiKey', 'apiSecret', 'channelType', 'channelID'])
   .help('h');
 
@@ -78,15 +78,20 @@ async function clientSetup(i) {
     userPromises.push(clientSetup(i));
   }
   const userIDs = await Promise.all(userPromises);
-  await channel.addMembers(userIDs);
+  const chunkSize = 100;
+  for (let i = 0; i < userIDs.length; i += chunkSize) {
+    const chunk = userIDs.slice(i, i + chunkSize);
+    await channel.addMembers(chunk);
+  }
 
   let msgNum = 1;
   setInterval(async () => {
-    const userID = `${userIDPrefix}${userConnectionsMax - 1}`;
+    const userIdx = Math.floor(Math.random() * userConnectionsMax);
+    const userID = `${userIDPrefix}${userIdx}`;
     await channel.sendEvent({ type: 'typing.start', user_id: userID });
     await sleep(120);
     const p1 = channel.sendEvent({ type: 'typing.stop', user_id: userID });
-    const p2 = channel.sendMessage({ text: `msg: ${msgNum}`, user_id: userID });
+    const p2 = channel.sendMessage({ text: `${userID}-msg: ${msgNum}`, user_id: userID });
     await Promise.all([p1, p2]);
     msgNum += 1;
   }, (messagesPerMinute / 60) * 1000);
@@ -98,6 +103,7 @@ async function clientSetup(i) {
       await sleep(connectionDelay);
       promises.push(clientLoop(i));
     }
+    console.log(`starting one run for ${promises.length} users`);
     await Promise.all(promises);
     console.log(`completed one run, wait ${coolDown}ms before doing another run bit now`);
     await sleep(coolDown);
