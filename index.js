@@ -70,18 +70,21 @@ async function clientSetup(i) {
 }
 
 function chunk(arr, size) {
-  return arr.reduce((acc, e, i) => (i % size ? acc[acc.length - 1].push(e) : acc.push([e]), acc), []);
+  /* eslint-disable max-len */
+  return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
 }
 
 (async () => {
   console.log('Adding users to channel as members');
   const channel = serverSideClient.channel(channelType, channelID);
 
+  /* eslint-disable no-restricted-syntax */
   for (const ids of chunk(Array.from(Array(userConnectionsMax).keys()), 100)) {
     const userPromises = [];
+    /* eslint-disable no-restricted-syntax */
     for (const id of ids) {
-        await sleep(connectionDelay / 10);
-        userPromises.push(clientSetup(id));
+      await sleep(connectionDelay / 10);
+      userPromises.push(clientSetup(id));
     }
     const userIDs = await Promise.all(userPromises);
     await channel.addMembers(userIDs);
