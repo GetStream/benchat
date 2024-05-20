@@ -28,6 +28,7 @@ function sleep(ms) {
 async function clientLoop(i) {
   const user = {
     id: `${userIDPrefix}${i}`,
+    name: `${userIDPrefix}${i}`
   };
   const client = new StreamChat(apiKey, { allowServerSideConnect: true });
   const token = serverSideClient.createToken(user.id);
