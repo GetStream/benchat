@@ -62,6 +62,7 @@ async function clientLoop(i) {
 async function clientSetup(i) {
   const user = {
     id: `${userIDPrefix}${i}`,
+    name: `${userIDPrefix}${i}`
   };
   const token = serverSideClient.createToken(user.id);
   const client = new StreamChat(apiKey, { allowServerSideConnect: true });
