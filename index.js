@@ -7,12 +7,12 @@ const { argv } = require('yargs/yargs')(process.argv.slice(2))
   .default('userConnectionsMax', 99)
   .describe('userConnectionsMax', 'how many users to connect the channel')
   .default('userLifetime', 6000)
-  .describe('userConnectionsMax', 'how long (ms) to keep the user connected before leaving')
+  .describe('userLifetime', 'how long (ms) to keep the user connected before leaving')
   .default('coolDown', 5000)
-  .describe('userConnectionsMax', 'how long (ms) to wait before one full run')
+  .describe('coolDown', 'how long (ms) to wait before one full run')
   .default('userIDPrefix', 'tommaso-')
   .default('messagesPerMinute', 20)
-  .describe('userConnectionsMax', 'how many messages to send per minute')
+  .describe('messagesPerMinute', 'how many messages to send per minute')
   .demandOption(['apiKey', 'apiSecret', 'channelType', 'channelID'])
   .help('h');
 
@@ -99,7 +99,7 @@ function chunk(arr, size) {
     const p2 = channel.sendMessage({ text: `msg: ${msgNum}`, user_id: userID });
     await Promise.all([p1, p2]);
     msgNum += 1;
-  }, (messagesPerMinute / 60) * 1000);
+  }, 1000 /(messagesPerMinute / 60));
 
   console.log('Running load loop');
   while (true) {
