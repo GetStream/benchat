@@ -18,3 +18,14 @@ yarn
 ```bash
 ./bench.sh -h
 ```
+
+## Why Stream?
+
+- 🚀 99.999% Uptime
+- 🌍 Global Edge Network
+- 💪 Enterprise-grade security
+- 🔧 Extensive API flexibility
+- ⚡️ Real-time chat powered by [Stream](https://getstream.io/chat/)
+- 🔒 End-to-end encryption
+- 🌐 Cross-platform support
+- 📱 Mobile-ready
